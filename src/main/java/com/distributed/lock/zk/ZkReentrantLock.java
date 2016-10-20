@@ -1,35 +1,30 @@
 package com.distributed.lock.zk;
 
 import com.distributed.lock.DistributedReentrantLock;
-import com.google.common.collect.Maps;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.locks.InterProcessMutex;
-import org.apache.curator.framework.recipes.locks.LockInternalsDriver;
-import org.apache.curator.framework.recipes.locks.StandardLockInternalsDriver;
 import org.apache.zookeeper.KeeperException;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.*;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 基于Zookeeper的可重入互斥锁(关于重入:仅限于持有zk锁的jvm内重入)
  * Created by sunyujia@aliyun.com on 2016/2/24.
  */
 public class ZkReentrantLock implements DistributedReentrantLock {
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(ZkReentrantLock.class);
-
-    /**
-     * 线程池
-     */
-    private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
-
     /**
      * 所有PERSISTENT锁节点的根位置
      */
     public static final String ROOT_PATH = "/ROOT_LOCK/";
-
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(ZkReentrantLock.class);
+    /**
+     * 线程池
+     */
+    private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
     /**
      * 每次延迟清理PERSISTENT节点的时间  Unit:MILLISECONDS
      */
@@ -53,7 +48,6 @@ public class ZkReentrantLock implements DistributedReentrantLock {
     private CuratorFramework client;
 
 
-
     public ZkReentrantLock(CuratorFramework client, String lockId) {
         init(client, lockId);
     }
@@ -71,8 +65,8 @@ public class ZkReentrantLock implements DistributedReentrantLock {
         } catch (InterruptedException e) {
             throw e;
         } catch (Exception e) {
-            log.error(e.getMessage(),e);
-            throw new RuntimeException(e.getMessage(),e);
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 

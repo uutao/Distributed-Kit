@@ -15,51 +15,48 @@ import java.util.TimerTask;
  */
 public class ZkReentrantLockCleanerTask extends TimerTask {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(ZkReentrantLockCleanerTask.class);
-
-    private CuratorFramework client;
-
-    private Timer timer;
-
-    /**
-     * 检查周期
-     */
-    private long period=5000;
-    /**
-     * Curator RetryPolicy maxRetries
-     */
-    private int maxRetries=3;
     /**
      * Curator RetryPolicy baseSleepTimeMs
      */
-    private final int baseSleepTimeMs=1000;
+    private final int baseSleepTimeMs = 1000;
+    private CuratorFramework client;
+    private Timer timer;
+    /**
+     * 检查周期
+     */
+    private long period = 5000;
+    /**
+     * Curator RetryPolicy maxRetries
+     */
+    private int maxRetries = 3;
 
     public ZkReentrantLockCleanerTask(String zookeeperAddress) {
-        try{
+        try {
             RetryPolicy retryPolicy = new ExponentialBackoffRetry(baseSleepTimeMs, maxRetries);
             client = CuratorFrameworkFactory.newClient(zookeeperAddress, retryPolicy);
             client.start();
-        }catch (Exception e){
-            log.error(e.getMessage(),e);
-        }catch (Throwable ex){
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        } catch (Throwable ex) {
             ex.printStackTrace();
-            log.error(ex.getMessage(),ex);
+            log.error(ex.getMessage(), ex);
         }
     }
 
-    public void start(){
-        timer.schedule(this,0,period);
+    public void start() {
+        timer.schedule(this, 0, period);
     }
 
-    private boolean isEmpty(List<String> list){
-        return list==null||list.isEmpty();
+    private boolean isEmpty(List<String> list) {
+        return list == null || list.isEmpty();
     }
 
 
     @Override
     public void run() {
         try {
-            List<String> childrenPaths=this.client.getChildren().forPath(ZkReentrantLock.ROOT_PATH);
-            for(String path:childrenPaths){
+            List<String> childrenPaths = this.client.getChildren().forPath(ZkReentrantLock.ROOT_PATH);
+            for (String path : childrenPaths) {
                 cleanNode(path);
             }
         } catch (Exception e) {
@@ -67,9 +64,9 @@ public class ZkReentrantLockCleanerTask extends TimerTask {
         }
     }
 
-    private void cleanNode(String path){
+    private void cleanNode(String path) {
         try {
-            if(isEmpty(this.client.getChildren().forPath(path))){
+            if (isEmpty(this.client.getChildren().forPath(path))) {
                 this.client.delete().forPath(path);//利用存在子节点无法删除和zk的原子性这两个特性.
             }
         } catch (Exception e) {

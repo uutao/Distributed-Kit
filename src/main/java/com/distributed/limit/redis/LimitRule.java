@@ -1,7 +1,5 @@
 package com.distributed.limit.redis;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * 限制规则
  * Created by sunyujia@aliyun.com on 2015/9/30.
@@ -55,7 +53,7 @@ public class LimitRule {
         this.lockTime = lockTime;
     }
 
-    public boolean enableLimitLock(){
-        return getLockTime()>0&&getLockCount()>0;
+    public boolean enableLimitLock() {
+        return getLockTime() > 0 && getLockCount() > 0;
     }
 }
